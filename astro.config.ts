@@ -51,9 +51,10 @@ export default defineConfig({
     fonts: [
       {
         provider: fontProviders.google(),
-        name: "Noto Sans",
-        cssVariable: "--font-noto-sans",
-        weights: ["100 900"],
+        name: "Bodoni Moda",
+        cssVariable: "--font-title",
+        weights: ["400 900"],
+        styles: ["italic"],
       },
     ],
   },

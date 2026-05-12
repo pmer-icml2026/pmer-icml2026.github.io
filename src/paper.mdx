@@ -1,47 +1,45 @@
 ---
-title: Academic Project Page Template
+title: Prioritized Model Experience Replay
 authors:
-  - name: Roman Hauksson
-    url: https://roman.technology
-    institution: University of Texas at Dallas
-    notes: ["*", †]
-  - name: Author Two
-    institution: Institution Two
-    notes: ["*", †]
-  - name: Author Three
-    institution: Institution Three
+  - name: Muxi Tao
+    url: 
+    institution: Tsinghua University
+    notes: []
+  - name: Jiangtao Wen
+    institution: New York University
     notes: ["*"]
-  - name: Author Four
-    institution: Institution Four
-conference: Conference Name
+  - name: Yuxing Han
+    institution: Tsinghua University
+    notes: ["*"]
+
+conference: ICML 2026
 notes:
   - symbol: "*"
-    text: author note one
-  - symbol: †
-    text: author note two
+    text: corresponding author
+
+  
+
 links:
   - name: Paper
-    url: https://github.com/RomanHauksson/academic-project-astro-template
+    url: 
     icon: ri:file-pdf-2-line
   - name: Code
-    url: https://github.com/RomanHauksson/academic-project-astro-template
+    url: 
     icon: ri:github-line
   - name: arXiv
-    url: https://github.com/RomanHauksson/academic-project-astro-template
+    url: 
     icon: academicons:arxiv
-  - name: Slides
-    url: https://github.com/RomanHauksson/academic-project-astro-template
-    icon: ri:slideshow-2-line
+
 
 # The color theme of the page. Defaults to "device" (the preference set in the user's brower or operating system). Setting this to "light" or "dark" will override the user's preference. This is useful if your figures only look good in one theme.
 theme: device
 
 # This is the icon that appears in the user's browser tab. To customize, change the favicon.svg file in /public/, or add your own file to /public/ and change the filename here.
-favicon: favicon.svg
+favicon: SCR-20260512-pexx.png
 
 # These keys are optional. If a link to your project page is in a Google search result, text message, or social media post, it will often appear as a "link preview card" based on its title, description, favicon, and thumbnail. After you publish your page, you can double check that these previews look right using [this tool](https://linkpreview.xyz/)
 description: Simple project page template for your research paper, built with Astro and Tailwind
-thumbnail: screenshot-light.png
+thumbnail: icml_logo.png
 ---
 
 import Video from "./components/Video.astro";
@@ -58,20 +56,104 @@ import Wide from "./components/Wide.astro";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/starwind/tabs";
 import { Comparison } from "./components/Comparison.tsx";
 
-import outside from "./assets/outside.mp4";
+
+import outputVideo from "./assets/output.mp4";
 import dogsDiffc from "./assets/dogs-diffc.png"
 import dogsTrue from "./assets/dogs-true.png"
 import dogsMsillm from "@/assets/dogs-msillm.jpg"
 
-<Video src={outside} />
 
-<HighlightedSection>
+
+
+## Abstract
+
+<SmallCaps>PMER</SmallCaps> is a lightweight replay mechanism for Dyna-style model-based reinforcement learning. It targets a practical instability in MBRL: the dynamics model is trained on replay data collected by many historical policies, but it is queried by the continually changing current policy. As a result, global validation loss can decrease while local, policy-relevant model error remains high and destabilizes model rollouts.
+
+Instead of explicitly estimating policy distances, PMER uses dynamics prediction error as a proxy for policy mismatch. During model training, each batch mixes uniformly sampled transitions from the environment buffer with high-error transitions from a prioritized model experience buffer, repeatedly revisiting the regions most likely to affect current policy improvement.
+
+
+<Figure>
+  <Picture
+    slot="figure"
+    src={"../assets/mismatch-vis.pdf"}
+    alt="Visualization of model learning mismatch"
+  />
+  <Fragment slot="caption">
+    Figure 1: Dynamics model learning mismatch between global and local model error.
+  </Fragment>
+</Figure>
+
+
+## Key Insight
+
+Prior works provide strong empirical evidence that curiosity- or
+error-based replay can improve sample efficiency. In contrast, PMER focuses on
+the underlying mechanism and provides new insights into why error-based replay is effective: prediction error acts as a practical proxy for policy-induced mismatch, and replay inghigh-error transitions helps the dynamics model focus on underfitted, policy-relevant regions.
+
+
+<Figure>
+  <Picture
+    slot="figure"
+    src={"../assets/Hopper-v3_policy_shift_vs_model_error_kl_Hopper_20260329_123132_after_50000.pdf"}
+    alt="Visualization of model learning mismatch"
+    maxWidth="28rem"
+  />
+  <Fragment slot="caption">
+    Figure 2: We use the
+    50k-step dynamics model to evaluate prediction error, and measure policy shift
+    as the KL divergence between the 50k-step policy and historical policies.
+    Prediction error is not identical to policy shift. However, high-error samples
+    are concentrated in regions closer to the current policy, whereas samples from
+    larger-shift historical policies often have lower error because they have been
+    better covered during model training. This supports our view that prediction
+    error highlights underfitted, policy-relevant regions without explicit
+    policy-distance estimation.
+  </Fragment>
+</Figure>
+
+## Method
+<Video
+  src={outputVideo}
+  controls={false}
+  loop={false}
+  maxWidth="42rem"
+  cropScale={1.03}
+  playWhenVisible
+/>
+
+{/* 
+## Empirical Results
+
+<Wide>
+  <Figure>
+    <Picture slot="figure" src={pmerReturns} alt="Learning curves comparing PMER plus ADMPO with vanilla ADMPO on Ant, Hopper, Humanoid, and HalfCheetah MuJoCo benchmarks" />
+    <Fragment slot="caption">PMER improves return and sample efficiency across MuJoCo tasks when integrated with ADMPO, with especially clear gains on Ant, Hopper, Humanoid, and HalfCheetah.</Fragment>
+  </Figure>
+</Wide>
+
+<TwoColumns>
+  <Figure slot="left">
+    <Picture slot="figure" src={pmerHopper} alt="Hopper return curves comparing consistency-regularized dynamics training, ADMPO, MBPO, and SAC" />
+    <Fragment slot="caption">The paper also studies rollout consistency on Hopper, showing that smoother model rollouts can improve policy learning even when one-step prediction accuracy is not the only objective.</Fragment>
+  </Figure>
+  <Figure slot="right">
+    <Picture slot="figure" src={pmerPolicyDistance} alt="Average policy distance curves comparing weighted and uniform policy-distance estimates with return on Hopper" />
+    <Fragment slot="caption">Prediction error correlates with policy-induced mismatch, supporting PMER's use of high-error transitions as a cheap proxy for policy relevance.</Fragment>
+  </Figure>
+</TwoColumns>
+
+## Contributions from the Paper
+
+- Identifies dynamics model learning mismatch as a key source of unstable training in Dyna-style MBRL.
+- Derives a finite-horizon performance bound that separates global model error, policy shift, and historical policy mixture effects.
+- Introduces PMER, which prioritizes high-error transitions during dynamics model training without explicit policy-distance estimation.
+- Demonstrates faster convergence, reduced oscillation, and improved sample efficiency on MuJoCo benchmarks.
+
 
 ## Abstract
 
 This is a template you can use to create a professional project page for your research paper. [See the code for the template and instructions on how to use it yourself on GitHub](https://github.com/RomanHauksson/academic-project-astro-template). It's made with the [Astro web framework](https://astro.build/) and styled with [Tailwind](https://tailwindcss.com/). You write the content in [MDX](https://mdxjs.com/), which enables markdown formatting like **bold**, _italics_, and ~strikethrough~, as well as custom components like <SmallCaps>small caps.</SmallCaps>
 
-</HighlightedSection>
 
 ## Visuals
 
@@ -206,3 +288,4 @@ Displaying the BibTeX entry for your paper in a code block makes it easy to copy
 ## Bibliography
 
 [^ref]
+*/}
