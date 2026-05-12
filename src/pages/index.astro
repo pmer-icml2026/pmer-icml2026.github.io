@@ -49,7 +49,7 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
 
-    <link rel="icon" type="image/svg+xml" href={prefix + favicon} />
+    <link rel="icon" href={prefix + favicon} />
 
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
@@ -94,17 +94,16 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     </main>
     <footer class="mx-auto max-w-[50rem] px-6 text-center">
       <p class="prose-sm text-center">
-        Built with <a
+        This project page is adapted from <a
           href="https://research-template.roman.technology"
           rel="nofollow">Roman Hauksson-Neill's project page template</a
-        >
+        >.
       </p>
     </footer>
     <script>
       const revealItems = [
         document.querySelector("header"),
         ...document.querySelectorAll("main > :not(script):not(style)"),
-        document.querySelector("footer"),
       ].filter(Boolean) as HTMLElement[];
 
       revealItems.forEach((item, index) => {
